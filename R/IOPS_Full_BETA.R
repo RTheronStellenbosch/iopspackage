@@ -29,10 +29,10 @@ library("economiccomplexity")
 #' @importFrom utils write.csv
 #'
 #' @param CountryCode (Type: character/integer) Any accepted ISO country code could be used, e.g. "United Kingdom", "GBR", "GB", 828 would all be accepted if the United Kingdom is the desired country.
-#' @param tradeData (Type: csv) Accepts any CEPII BACI trade data. Defaults to "H0/BACI_HS92_Y2018_V202001.csv". NOTE: tradeDataInput and GVCMap must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
+#' @param tradeData (Type: csv) Accepts any CEPII BACI trade data. Defaults to "H0/BACI_HS92_Y2018_V202001.csv". NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
 #' @param ComplexMethod (Type: character) Methods used to calculate complexity measures. Can be any one of these methods: "fitness", "reflections" or "eigenvalues". Defaults to "eigenvalues".
 #' @param iterCompl (Type: integer) The number of iterations that the chosen complexity measure must use. Defaults to 20.
-#' @param GVCMapping (Type: csv) The desired value chain to be analysed. With Columns "Tiers", "Activity", and "HSCode". Defaults to "H0/Auto_Value_Chain.csv.csv" NOTE: tradeDataInput and GVCMap must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
+#' @param GVCMapping (Type: csv) The desired value chain to be analysed. With Columns "Tiers", "Activity", and "HSCode". Defaults to "H0/Auto_Value_Chain.csv.csv" NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
 #'
 #' @return The package creates 3 xlsx files, namely Tier_Results.xlsx, Product_Category_Results.xlsx, and "Product_Results.xlsx. It also creates a number of csv files containing all the complexity measures for a chosen complexity calculation method, under the 'Complexity_Measures_CSV' folder.
 #' @export
