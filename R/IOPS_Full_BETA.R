@@ -25,6 +25,7 @@ library("usethis")
 #' @import dplyr
 #' @import tidyr
 #' @import readxl
+#' @import usethis
 #' @import economiccomplexity
 #' @importFrom stats aggregate
 #' @importFrom utils write.csv
@@ -37,6 +38,8 @@ library("usethis")
 #'
 #' @return
 #' @export
+#'
+#'
 IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCompl = 20, GVCMapping){
 
   #----------------------------- Import Trade Data -----------------------------
