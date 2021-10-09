@@ -5,16 +5,17 @@ requireNamespace("dplyr")
 requireNamespace("tidyr")
 requireNamespace("readxl")
 requireNamespace("economiccomplexity")
+requireNamespace("usethis")
 
 library("xlsx")
 library("dplyr")
 library("tidyr")
 library("readxl")
 library("economiccomplexity")
+library("usethis")
 
-# AllCountryCodes <- read_excel("country_codes_V202001.xlsx")
-# tradeData <- read.csv("H0/BACI_HS92_Y2018_V202001.csv", header = TRUE)
-# GVCMapping <- read.csv( "H0/Auto_Value_Chain.csv")
+ # tradeData <- read.csv("H0/BACI_HS92_Y2018_V202001.csv", header = TRUE)
+ # GVCMapping <- read.csv( "H0/Auto_Value_Chain.csv")
 
 #' IOPS
 #'
@@ -28,15 +29,14 @@ library("economiccomplexity")
 #' @importFrom stats aggregate
 #' @importFrom utils write.csv
 #'
-#' @param CountryCode (Type: character/integer) Any accepted ISO country code could be used, e.g. "United Kingdom", "GBR", "GB", 828 would all be accepted if the United Kingdom is the desired country.
-#' @param tradeData (Type: csv) Accepts any CEPII BACI trade data. Defaults to "H0/BACI_HS92_Y2018_V202001.csv". NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
-#' @param ComplexMethod (Type: character) Methods used to calculate complexity measures. Can be any one of these methods: "fitness", "reflections" or "eigenvalues". Defaults to "eigenvalues".
-#' @param iterCompl (Type: integer) The number of iterations that the chosen complexity measure must use. Defaults to 20.
-#' @param GVCMapping (Type: csv) The desired value chain to be analysed. With Columns "Tiers", "Activity", and "HSCode". Defaults to "H0/Auto_Value_Chain.csv.csv" NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
+#' @param CountryCode (Type: character/integer) Any accepted ISO country code could be used, e.g. \code{"United Kingdom"}, \code{"GBR"}, \code{"GB"}, \code{828} would all be accepted if the United Kingdom is the desired country.
+#' @param tradeData (Type: csv) Accepts any CEPII BACI trade data. NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
+#' @param ComplexMethod (Type: character) Methods used to calculate complexity measures. Can be any one of these methods: \code{"fitness"}, \code{"reflections"} or \code{"eigenvalues"}. Defaults to "eigenvalues".
+#' @param iterCompl (Type: integer) The number of iterations that the chosen complexity measure must use. Defaults to \code{iterCompl = 20}.
+#' @param GVCMapping (Type: csv) The desired value chain to be analysed. With Columns "Tiers", "Activity", and "HSCode". NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
 #'
-#' @return The package creates 3 xlsx files, namely Tier_Results.xlsx, Product_Category_Results.xlsx, and "Product_Results.xlsx. It also creates a number of csv files containing all the complexity measures for a chosen complexity calculation method, under the 'Complexity_Measures_CSV' folder.
+#' @return
 #' @export
-#'
 IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCompl = 20, GVCMapping){
 
   #----------------------------- Import Trade Data -----------------------------
@@ -64,6 +64,9 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   #create matrix of RCA values (MAbs) and binary RCA matrix (Mbin)
   Mabs <- balassa_index(TDE, discrete = FALSE, country = "country_code", product = "hs_product_code", value = "export_value")
   Mbin <- balassa_index(TDE, country = "country_code", product = "hs_product_code", value = "export_value")
+
+  M_binary <- as.matrix(Mbin)
+  M_absolute <- as.matrix(Mabs)
 
   Products <- unique(TDE$hs_product_code)   # 5381 products total
   Countries <- rownames(Mabs)   # 221 countries total
@@ -113,34 +116,29 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   opporVal <- complexity_outlook(Mbin, Proximities, PCI)
   cntryOpporVal <- opporVal$complexity_outlook_index
   opporGain <- opporVal$complexity_outlook_gain
+  Opportunity_Gain <- as.matrix(opporGain)
 
   # compute the densities and distances
   # ______ (1 - Mbin) creates matrix of ones where Mbin has zeroes and vice versa
   distance <- tcrossprod(1 - as.matrix(Mbin), as.matrix(Proximities)/rowSums(as.matrix(Proximities)))
   density <- tcrossprod(as.matrix(Mbin), as.matrix(Proximities)/rowSums(as.matrix(Proximities)))
 
-  #+++++++to convert ISO to country code (temp.)+++++++++
-
-  #++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-  #return complexity metrics in a file named "ComplexityMeasures.xlsx"
- # write.xlsx2(ECI, file="ComplexityMeasures.xlsx", sheetName = paste0("ECI_", Method,".xlsx"), row.names=T)
- # write.xlsx2(PCI, file="ComplexityMeasures.xlsx", sheetName = paste0("PCI_", Method,".xlsx"), append=TRUE, row.names=T)
- # write.xlsx2(as.matrix(opporGain), file="ComplexityMeasures.xlsx", sheetName = paste0("oppGain_", Method,".xlsx"), append=TRUE, row.names=T)
- # write.xlsx2(distance, file="ComplexityMeasures.xlsx", sheetName = paste0("distance_", Method,"xlsx"), append=TRUE, row.names=T)
- # write.xlsx2(density, file="ComplexityMeasures.xlsx", sheetName = paste0("density_", Method,".xlsx"), append=TRUE, row.names=T)
- # write.xlsx2(as.matrix(Mbin), file="ComplexityMeasures.xlsx", sheetName = "M_binary.xlsx", append=TRUE, row.names=T)
- # write.xlsx2(as.matrix(Mabs), file="ComplexityMeasures.xlsx", sheetName = "M_absolute.xlsx", append=TRUE, row.names=T)
-
 #////////////////////////// Export Complexity Measures /////////////////////////
-  write.csv(ECI, paste0("Complexity_Measures_CSV/ECI_", Method,".csv"))
-  write.csv(PCI, paste0("Complexity_Measures_CSV/PCI_", Method,".csv"))
-  write.csv(as.matrix(opporGain), paste0("Complexity_Measures_CSV/oppGain_", Method,".csv"))
-  write.csv(distance,paste0("Complexity_Measures_CSV/distance_", Method,".csv"))
-  write.csv(density, paste0("Complexity_Measures_CSV/density_", Method,".csv"))
+  # write.csv(ECI, paste0("Complexity_Measures_CSV/ECI_", Method,".csv"))
+  # write.csv(PCI, paste0("Complexity_Measures_CSV/PCI_", Method,".csv"))
+  # write.csv(as.matrix(opporGain), paste0("Complexity_Measures_CSV/oppGain_", Method,".csv"))
+  # write.csv(distance, paste0("Complexity_Measures_CSV/distance_", Method,".csv"))
+  # write.csv(density, paste0("Complexity_Measures_CSV/density_", Method,".csv"))
+  # write.csv(as.matrix(Mbin),"Complexity_Measures_CSV/Mbin.csv")
+  # write.csv(as.matrix(Mabs),"Complexity_Measures_CSV/Mabs.csv")
 
-  write.csv(as.matrix(Mbin),"Complexity_Measures_CSV/Mbin.csv")
-  write.csv(as.matrix(Mabs),"Complexity_Measures_CSV/Mabs.csv")
+  use_data(ECI, overwrite = T)
+  use_data(PCI, overwrite = T)
+  use_data(Opportunity_Gain, overwrite = T)
+  use_data(distance, overwrite = T)
+  use_data(density, overwrite = T)
+  use_data(M_binary, overwrite = T)
+  use_data(M_absolute, overwrite = T)
 #///////////////////////////////////////////////////////////////////////////////
 
   #----------------------------- Global Value Chain ------------------------------
@@ -180,9 +178,13 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   GVCfull <- GVCfull[order(GVCfull$tierNumber, GVCfull$GVCactivityNumber, GVCfull$HScode), ]
   #colnames(GVCfull)[16] <- "productPGI"
 
+  Product_Results <- GVCfull
+
 #////////////////////////// Export Product Results /////////////////////////////
-  write.xlsx2(GVCfull, file = "Results/Product_Results.xlsx", sheetName = "Sheet1",
-             col.names = TRUE, row.names = FALSE, append = FALSE)
+  # write.xlsx2(GVCfull, file = "Results/Product_Results.xlsx", sheetName = "Sheet1",
+  #            col.names = TRUE, row.names = FALSE, append = FALSE)
+
+  use_data(Product_Results)
 #///////////////////////////////////////////////////////////////////////////////
 
   #-----GVCacts-----
@@ -209,9 +211,13 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   GVCacts[ , 16] <- aggregate(GVCfull[ , 16], by = list(activity = GVCfull$GVCactivityNumber), FUN = mean)[, -1]
   GVCacts[-which(numOppProdsInAct == 0), 17] <- aggregate(GVCfull[-which(GVCfull$GVCactivityNumber %in% which(numOppProdsInAct == 0)) , 16], by = list(activity = GVCfull$GVCactivityNumber[-which(GVCfull$GVCactivityNumber %in% which(numOppProdsInAct == 0))]), FUN = sum)[, -1]/(numOppProdsInAct[-which(numOppProdsInAct == 0)])
 
+  Product_Category_Results <- GVCacts
+
   #/////////////////////// Export Product Category Results /////////////////////
-  write.xlsx2(GVCacts, file = "Results/Product_Category_Results.xlsx", sheetName = "Sheet1",
-             col.names = TRUE, row.names = FALSE, append = FALSE)
+  # write.xlsx2(GVCacts, file = "Results/Product_Category_Results.xlsx", sheetName = "Sheet1",
+  #            col.names = TRUE, row.names = FALSE, append = FALSE)
+
+  use_data(Product_Category_Results, overwrite = T)
   #/////////////////////////////////////////////////////////////////////////////
 
   # create vector of activity numbers that contain no opportunity products
@@ -245,175 +251,13 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   #GVCtiers[ , 15] <- aggregate(GVCfull[ , 16], by = list(tier = GVCfull$tierNumber), FUN = mean)[ , -1]
   #GVCtiers[-which(numOppProdsInTier == 0), 16] <- aggregate(GVCfull[-which(GVCfull$tierNumber %in% which(numOppProdsInTier == 0)) , 16], by = list(tier = GVCfull$tierNumber[-which(GVCfull$tierNumber %in% which(numOppProdsInTier == 0))]), FUN = sum)[, -1]/(numOppProdsInTier[-which(numOppProdsInTier == 0)])
 
+  Tier_Results <- GVCtiers
+
 #//////////////////////////// Export Tier Results //////////////////////////////
-  write.xlsx2(GVCtiers, file = "Results/Tier_Results.xlsx", sheetName = "Sheet1",
-             col.names = TRUE, row.names = FALSE, append = FALSE)
+  # write.xlsx2(GVCtiers, file = "Results/Tier_Results.xlsx", sheetName = "Sheet1",
+  #            col.names = TRUE, row.names = FALSE, append = FALSE)
+
+  use_data(Tier_Results, overwrite = T)
 #///////////////////////////////////////////////////////////////////////////////
-
-  #-----Bilateral GVC proximity matrices-----
-
-
-
-  #+++++++++++++++++++++++ BASELINE METRICS (Doesn't Work) +++++++++++++++++++++
-#
-#   BLmetrics <- rep(0, times = 9)
-#   names(BLmetrics) <- c("OpportunityValue", "AvgComplexityRCAproducts_VC","AvgDistanceNonRCAproducts_VC", "AvgComplexityRCAproducts_PS", "AvgDistanceNonRCAproducts_PS", "RCAproductsIn_VC", "SumComplexityRCAproducts_VC", "RCAproductsIn_PS", "SumComplexityRCAproducts_PS")
-#
-#   BLmetrics[1] <- cntryOpporVal[[as.character(CC)]]
-#   BLmetrics[2] <- sum(GVCfull[which(GVCfull$RCA >= 1), 4])/length(GVCfull[which(GVCfull$RCA >= 1), 4])
-#   BLmetrics[3] <- sum(GVCfull[which(GVCfull$RCA < 1), 8])/length(GVCfull[which(GVCfull$RCA < 1), 8])
-#   BLmetrics[4] <- mean(PCI[which(Mabs[as.character(CC), ] >= 1)])
-#   BLmetrics[5] <- mean(distance[as.character(CC), which(Mabs[as.character(CC), ] < 1)])
-#   BLmetrics[6] <- numProds - sum(numOppProdsInTier)
-#   BLmetrics[7] <- sum(GVCfull[which(GVCfull$RCA >= 1), 4])
-#   BLmetrics[8] <- sum(Mabs[as.character(CC), ] >= 1)
-#   BLmetrics[9] <- sum(PCI[which(Mabs[as.character(CC), ] >= 1)])
-#
-#
-#   # RCA : || HS code | ZAF RCA ||
-#   baseRCAspace <- rep(0, times = length(CS_RCAmat[ , 4]))
-#   baseRCAspace[which(CS_RCAmat[ , 4] >= 1)] <- 1.1
-#
-#   #-----calculate scenario RCA space for 1-----
-#
-#   #__________Calculate raw contributions for each activity
-#
-#   GVCRCAscenCont <- matrix(rep(0, times = nrow(GVCacts)*length(Products)), nrow = nrow(GVCacts), ncol = length(Products))
-#
-#   nonRCAprodsPerAct <- aggregate(GVCfull[which(GVCfull$RCA < 1), 15], by = list(activity = GVCfull$GVCactivityNumber[which(GVCfull$RCA < 1)]), FUN = c)
-#
-#   #Doesn't work VV
-#  # for (i in nonRCAprodsPerAct$activity) {
-#     #GVCRCAscenCont[41, unlist(nonRCAprodsPerAct$x[which(nonRCAprodsPerAct$activity == 41)])] <- 1.1
-#   #}
-#
-#   #__________Calculate Scenarios by adding baseline and Scenario contributions
-#
-#   GVCRCAscen1 <- matrix(rep(0, times = nrow(GVCacts)*length(Products)), nrow = nrow(GVCacts), ncol = length(Products))
-#   GVCRCAscen1 <- t(t(GVCRCAscenCont) + baseRCAspace)
-#
-#
-#   #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#   #-----Calculate Metrics for RCA scenarios after 1-----
-#
-#   #__________Calculate Complexity values for Different Activities based on the unexploited items
-#
-#   sumCompContr <- rep(0, times = nrow(GVCacts)) # = contribution to complexity per activity
-#   sumCompContr[aggregate(GVCfull[which(GVCfull$RCA < 1), 4], by = list(activity = GVCfull$GVCactivityNumber[which(GVCfull$RCA < 1)]), FUN = sum)[ , 1]] <- aggregate(GVCfull[which(GVCfull$RCA < 1), 4], by = list(activity = GVCfull$GVCactivityNumber[which(GVCfull$RCA < 1)]), FUN = sum)[ , 2]
-#   numInActToBeAdded <- GVCacts$NumberOfOppProductsInActivity
-#
-#   Comp1 <- (sumCompContr + BLmetrics[9])/(numInActToBeAdded + BLmetrics[8])
-#
-#   #__________Calculate the distance to different activities for one step
-#
-#   distReq1 <- aggregate(GVCfull[8], by = list(activity = GVCfull$GVCactivityNumber), FUN = sum)[ ,2]
-#
-#   #__________Calculate OpporGain for different activities for one step
-#
-#   oppValScen1 <- rep(0, times = nrow(GVCacts))
-#   densScen1 <- tcrossprod((GVCRCAscen1/1.1), as.matrix(Proximity)/(rowSums(as.matrix(Prox))))
-#   densScen1forOpps <- densScen1 * (1 - (GVCRCAscen1/1.1))
-#   oppValScen1 <- tcrossprod(densScen1forOpps, t(as.numeric(PCI)))
-#
-#   oppGainScen1 <- oppValScen1 - BLmetrics[1]
-#
-#   round1metrics <- cbind.data.frame(Comp1, oppGainScen1, distReq1)   # all are 1 x 49 vectors
-#   colnames(round1metrics) <- c("AvgCompInPS_RCAforAllActProds", "OppGain_RCAforAllActProds", "RequiredDist")
-#
-#   #__________Calculate winners after 1
-#
-#   ScenariosDistances <- seq(1, 71, length = 36)
-#
-#   BestFrom1Comp <- as.data.frame(matrix(rep(0, times = 6*length(ScenariosDistances)), nrow = length(ScenariosDistances), ncol = 6))
-#   BestFrom1Oppor <- as.data.frame(matrix(rep(0, times = 6*length(ScenariosDistances)), nrow = length(ScenariosDistances), ncol = 6))
-#   colnames(BestFrom1Comp) <- c("Activity 1", "Activity 2", "Activity 3", "BestCompContr", "OpporGain", "Distance")
-#   colnames(BestFrom1Oppor) <- c("Activity 1", "Activity 2", "Activity 3", "CompContr", "BestOpporGain", "Distance")
-#
-#   # CompInPS = BaseLineMetrics[9] / BaseLineMetrics[8]
-#   BestCompContr <- rep((BLmetrics[9] / BLmetrics[8]), times = length(ScenariosDistances))
-#   BestOpporGain <- rep(0, times = length(ScenariosDistances))
-#
-#   for (i in 1:length(ScenariosDistances)) {
-#     #_________________________for comp maximization:
-#     # returns activity number of max comp contr for distance within scenario i's max distance
-#     BestFrom1Comp[i, 1] <- rownames(round1metrics[which(round1metrics$RequiredDist < ScenariosDistances[i]), ])[which.max(round1metrics[(round1metrics$RequiredDist < ScenariosDistances[i]), 1])]
-#     BestFrom1Comp[i, 4] <- round1metrics[BestFrom1Comp[i, 1], 1]
-#     BestFrom1Comp[i, 5] <- round1metrics[BestFrom1Comp[i, 1], 2]
-#     BestFrom1Comp[i, 6] <- round1metrics[BestFrom1Comp[i, 1], 3]
-#
-#     #_________________________for comp maximization:
-#     # returns activity number of max opp gain for distance within scenario i's max distance
-#     BestFrom1Oppor[i, 1] <- rownames(round1metrics[which(round1metrics$RequiredDist < ScenariosDistances[i]), ])[which.max(round1metrics[(round1metrics$RequiredDist < ScenariosDistances[i]), 2])]
-#     BestFrom1Oppor[i, 4] <- round1metrics[BestFrom1Oppor[i, 1], 1]
-#     BestFrom1Oppor[i, 5] <- round1metrics[BestFrom1Oppor[i, 1], 2]
-#     BestFrom1Oppor[i, 6] <- round1metrics[BestFrom1Oppor[i, 1], 3]
-#
-#   }
-#
-#   BestFrom1Comp[-which(BestFrom1Comp$BestCompContr > BestCompContr), ] <- rep(0, times = 6)
-#   BestCompContr <- BestFrom1Comp$BestCompContr
-#
-#   BestFrom1Oppor[-which(BestFrom1Oppor$BestOpporGain > BestOpporGain), ] <- rep(0, times = 6)
-#   BestOpporGain <- BestFrom1Oppor$BestOpporGain
-#
-#   #++++++++++++++++++++++ Calculate Scenario RCA Space for 2 +++++++++++++++++++++
-#
-#   GVCRCAscen2 <- array((t(GVCRCAscenCont) + baseRCAspace), dim = c(length(Products), nrow(GVCacts), nrow(GVCacts)))
-#
-#   for (i in 1:nrow(GVCacts)) {
-#     GVCRCAscen2[ , , i] <- GVCRCAscen2[ , , i] + GVCRCAscenCont[i, ]
-#   }
-#
-#   #+++++++++++++++++ Calculate Metrics for RCA scenarios after 2 +++++++++++++++++
-#
-#   #__________Calculate Complexity values for Different Activities based on the unexploited items
-#
-#   totSumCompContr <- matrix(sumCompContr, nrow = nrow(GVCacts), ncol = nrow(GVCacts))
-#   totSumCompContr <- totSumCompContr + t(totSumCompContr)
-#   numActsToAdd <- matrix(GVCacts$NumberOfOppProductsInActivity, nrow = nrow(GVCacts), ncol = nrow(GVCacts))
-#   numActsToAdd <- numActsToAdd + t(numActsToAdd)
-#
-#   Comp2 <- (totSumCompContr + BLmetrics[9]) / (numActsToAdd + BLmetrics[8])
-#
-#   # now make diagonals a very large negative value!!
-#   Comp2 <- Comp2 - diag(nrow(GVCacts))*1000
-#
-#   #__________Calculate the distance to different activities for 2 steps
-#
-#   distStep2 <- tcrossprod((1 - (GVCRCAscen1/1.1)), as.matrix(Prox)/rowSums(as.matrix(Prox)))
-#   distStep2 <- distStep2*(1 - (GVCRCAscen1/1.1))
-#
-#   # distReq2 = 49 x 49 of Step 1 (row) x Step 2 (col)
-#
-#   distReq2 <- matrix(distReq1, nrow = nrow(GVCacts), ncol = nrow(GVCacts))  # populate so that each col = distReq1, then add to that initial distance in the for loop
-#
-#   for (step2 in 1:nrow(GVCacts)) {  # run through all possible second steps
-#
-#     distReq2[ , step2] <- distReq2[ , step2] + rowSums(distStep2[ , GVCfull[which(GVCfull$GVCactivityNumber == step2), 15], drop = FALSE])
-#
-#   }
-#
-#   #__________Calculate OpporGain for different activities for two steps
-#
-#   oppValScen2 <- matrix(0, nrow = nrow(GVCacts), ncol = nrow(GVCacts))
-#
-#   for (step1 in 1:nrow(GVCacts)) {  # run through all possible first steps
-#
-#     # subset the scenario space for 2 steps to obtain a matrix
-#     step2mat <- t(GVCRCAscen2[ , step1, ])
-#     Binstep2matVect <- as.vector(step2mat)
-#     Binstep2matVect[which(Binstep2matVect > 1)] <- 1
-#
-#     step2matBin <- matrix(Binstep2matVect, nrow = nrow(GVCacts), ncol = length(Products))
-#
-#     # this creates a new density matrix, where the density of all 1219 product space products is calculated for each of the 49 possible first-step activities
-#     densScen2step1 <- tcrossprod((step2matBin), as.matrix(Prox)/(rowSums(as.matrix(Prox))))
-#     densScen2step1forOpps <- densScen2step1 * (1 - (step2matBin))
-#     oppValScen2[step1, ] <- tcrossprod(densScen2step1forOpps, t(as.numeric(PCI)))
-#
-#     step2mat <- NULL
-#     Binstep2matVect <- NULL
-#     step2matBin <- NULL
-#   }
 
 }

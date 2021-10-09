@@ -14,7 +14,8 @@ Imports:
     economiccomplexity,
     readxl,
     tidyr,
-    xlsx
+    xlsx,
+    usethis
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

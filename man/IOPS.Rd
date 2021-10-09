@@ -13,18 +13,18 @@ IOPS(
 )
 }
 \arguments{
-\item{CountryCode}{(Type: character/integer) Any accepted ISO country code could be used, e.g. "United Kingdom", "GBR", "GB", 828 would all be accepted if the United Kingdom is the desired country.}
+\item{CountryCode}{(Type: character/integer) Any accepted ISO country code could be used, e.g. \code{"United Kingdom"}, \code{"GBR"}, \code{"GB"}, \code{828} would all be accepted if the United Kingdom is the desired country.}
 
-\item{tradeData}{(Type: csv) Accepts any CEPII BACI trade data. Defaults to "H0/BACI_HS92_Y2018_V202001.csv". NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.}
+\item{tradeData}{(Type: csv) Accepts any CEPII BACI trade data. NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.}
 
-\item{ComplexMethod}{(Type: character) Methods used to calculate complexity measures. Can be any one of these methods: "fitness", "reflections" or "eigenvalues". Defaults to "eigenvalues".}
+\item{ComplexMethod}{(Type: character) Methods used to calculate complexity measures. Can be any one of these methods: \code{"fitness"}, \code{"reflections"} or \code{"eigenvalues"}. Defaults to "eigenvalues".}
 
-\item{iterCompl}{(Type: integer) The number of iterations that the chosen complexity measure must use. Defaults to 20.}
+\item{iterCompl}{(Type: integer) The number of iterations that the chosen complexity measure must use. Defaults to \code{iterCompl = 20}.}
 
-\item{GVCMapping}{(Type: csv) The desired value chain to be analysed. With Columns "Tiers", "Activity", and "HSCode". Defaults to "H0/Auto_Value_Chain.csv.csv" NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.}
+\item{GVCMapping}{(Type: csv) The desired value chain to be analysed. With Columns "Tiers", "Activity", and "HSCode". NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.}
 }
 \value{
-The package creates 3 xlsx files, namely Tier_Results.xlsx, Product_Category_Results.xlsx, and "Product_Results.xlsx. It also creates a number of csv files containing all the complexity measures for a chosen complexity calculation method, under the 'Complexity_Measures_CSV' folder.
+
 }
 \description{
 Takes user inputted trade data, any acceptable ISO country code and industrial value chain mapping to calculate various metrics (Economic- and Product complexity metrics, distance metrics, opportunity gain, and inequality metrics) of a given country in order to facilitate better decision making regarding industrial policymaking.
