@@ -35,7 +35,7 @@ library("roxygen2")
 #' @param iterCompl (Type: integer) The number of iterations that the chosen complexity measure must use. Defaults to \code{iterCompl = 20}.
 #' @param GVCMapping (Type: csv) The desired value chain to be analysed. With Columns "Tiers", "Activity", and "HSCode". NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
 #'
-#' @return A list that constains ECI, PCI, Opportunity_Gain, distance, density, M_absolute, M_binary, Tier_Results, Product_Category_Results, Product_Results, respectively
+#' @return A list that constains ECI, PCI, Opportunity_Gain, distance, density, M_absolute, M_binary, Tier_Results, Product_Category_Results, Product_Results, respectively.
 #' @export
 #'
 #' @examples
