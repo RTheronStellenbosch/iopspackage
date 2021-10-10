@@ -15,7 +15,8 @@ Imports:
     readxl,
     tidyr,
     xlsx,
-    usethis
+    usethis,
+    roxygen2
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

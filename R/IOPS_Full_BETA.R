@@ -13,9 +13,7 @@ library("tidyr")
 library("readxl")
 library("economiccomplexity")
 library("usethis")
-
- # tradeData <- read.csv("H0/BACI_HS92_Y2018_V202001.csv", header = TRUE)
- # GVCMapping <- read.csv( "H0/Auto_Value_Chain.csv")
+library("roxygen2")
 
 #' IOPS
 #'
@@ -27,6 +25,7 @@ library("usethis")
 #' @import readxl
 #' @import usethis
 #' @import economiccomplexity
+#' @import roxygen2
 #' @importFrom stats aggregate
 #' @importFrom utils write.csv
 #'
@@ -36,10 +35,12 @@ library("usethis")
 #' @param iterCompl (Type: integer) The number of iterations that the chosen complexity measure must use. Defaults to \code{iterCompl = 20}.
 #' @param GVCMapping (Type: csv) The desired value chain to be analysed. With Columns "Tiers", "Activity", and "HSCode". NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
 #'
-#' @return
+#' @return A list that constains ECI, PCI, Opportunity_Gain, distance, density, M_absolute, M_binary, Tier_Results, Product_Category_Results, Product_Results, respectively
 #' @export
 #'
-#'
+#' @examples
+#' IOPS(CountryCode = 711, tradeData=BACI_HS92_Y2018_V202001, GVCMapping = Auto_Value_Chain)
+
 IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCompl = 20, GVCMapping){
 
   #----------------------------- Import Trade Data -----------------------------
@@ -135,13 +136,13 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   # write.csv(as.matrix(Mbin),"Complexity_Measures_CSV/Mbin.csv")
   # write.csv(as.matrix(Mabs),"Complexity_Measures_CSV/Mabs.csv")
 
-  use_data(ECI, overwrite = T)
-  use_data(PCI, overwrite = T)
-  use_data(Opportunity_Gain, overwrite = T)
-  use_data(distance, overwrite = T)
-  use_data(density, overwrite = T)
-  use_data(M_binary, overwrite = T)
-  use_data(M_absolute, overwrite = T)
+  # use_data(ECI, overwrite = T)
+  # use_data(PCI, overwrite = T)
+  # use_data(Opportunity_Gain, overwrite = T)
+  # use_data(distance, overwrite = T)
+  # use_data(density, overwrite = T)
+  # use_data(M_binary, overwrite = T)
+  # use_data(M_absolute, overwrite = T)
 #///////////////////////////////////////////////////////////////////////////////
 
   #----------------------------- Global Value Chain ------------------------------
@@ -187,7 +188,7 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   # write.xlsx2(GVCfull, file = "Results/Product_Results.xlsx", sheetName = "Sheet1",
   #            col.names = TRUE, row.names = FALSE, append = FALSE)
 
-  use_data(Product_Results)
+  #use_data(Product_Results, overwrite = T)
 #///////////////////////////////////////////////////////////////////////////////
 
   #-----GVCacts-----
@@ -220,7 +221,7 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   # write.xlsx2(GVCacts, file = "Results/Product_Category_Results.xlsx", sheetName = "Sheet1",
   #            col.names = TRUE, row.names = FALSE, append = FALSE)
 
-  use_data(Product_Category_Results, overwrite = T)
+  #use_data(Product_Category_Results, overwrite = T)
   #/////////////////////////////////////////////////////////////////////////////
 
   # create vector of activity numbers that contain no opportunity products
@@ -241,7 +242,7 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   GVCtiers[ , c(2:4)] <- aggregate(GVCfull[ , c(4:6)], by = list(tier = GVCfull$tierNumber), FUN = mean)[, -1]
 
   #in case of no values numOppProdsInTier == 0, the first line then breaks, hence the else statement
-  if(GVCfull$tierNumber %in% which(numOppProdsInTier == 0) == TRUE){
+  if(sum(GVCfull$tierNumber %in% which(numOppProdsInTier == 0) == TRUE) > 0){
     GVCtiers[-which(numOppProdsInTier == 0) , c(5:8)] <- aggregate(GVCfull[-which(GVCfull$tierNumber %in% which(numOppProdsInTier == 0)) , c(7:10)], by = list(tier = GVCfull$tierNumber[-which(GVCfull$tierNumber %in% which(numOppProdsInTier == 0))]), FUN = sum)[, -1]/(numOppProdsInTier[-which(numOppProdsInTier == 0)])
   } else {
     GVCtiers[, c(5:8)] <- aggregate(GVCfull[ ,c(7:10)], by = list(tier = GVCfull$tierNumber), FUN = mean)[, -1]
@@ -260,7 +261,8 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   # write.xlsx2(GVCtiers, file = "Results/Tier_Results.xlsx", sheetName = "Sheet1",
   #            col.names = TRUE, row.names = FALSE, append = FALSE)
 
-  use_data(Tier_Results, overwrite = T)
+  #use_data(Tier_Results, overwrite = T)
 #///////////////////////////////////////////////////////////////////////////////
-
+  ReturnIOPS <- list(ECI, PCI, Opportunity_Gain, distance, density, M_absolute, M_binary, Tier_Results, Product_Category_Results, Product_Results)
+return(ReturnIOPS)
 }

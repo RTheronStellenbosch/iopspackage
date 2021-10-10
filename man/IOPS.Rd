@@ -24,8 +24,11 @@ IOPS(
 \item{GVCMapping}{(Type: csv) The desired value chain to be analysed. With Columns "Tiers", "Activity", and "HSCode". NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.}
 }
 \value{
-
+A list that constains ECI, PCI, Opportunity_Gain, distance, density, M_absolute, M_binary, Tier_Results, Product_Category_Results, Product_Results, respectively
 }
 \description{
 Takes user inputted trade data, any acceptable ISO country code and industrial value chain mapping to calculate various metrics (Economic- and Product complexity metrics, distance metrics, opportunity gain, and inequality metrics) of a given country in order to facilitate better decision making regarding industrial policymaking.
+}
+\examples{
+IOPS(CountryCode = 711, tradeData=BACI_HS92_Y2018_V202001, GVCMapping = Auto_Value_Chain)
 }
