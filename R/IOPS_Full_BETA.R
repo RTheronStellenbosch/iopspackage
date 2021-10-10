@@ -198,10 +198,9 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   numOppProdsInAct[as.matrix(GVCMapping[which(GVCMapping$HScode %in% GVCfull[which(GVCfull$RCA < 1), 3]), ] %>% group_by(GVCactivityNumber) %>% tally())[ ,1]] <- as.matrix(GVCMapping[which(GVCMapping$HScode %in% GVCfull[which(GVCfull$RCA < 1), 3]), ] %>% group_by(GVCactivityNumber) %>% tally())[ ,2]
 
   #in case of mismatch between data lengths
-  # if (length(numProdsInAct)<length(numOppProdsInAct)) {
-  #   Dif <- length(numOppProdsInAct)-length(numProdsInAct)+1
-  #   numOppProdsInAct <- numOppProdsInAct[Dif:length(numOppProdsInAct)]
-  # }
+  if (length(numProdsInAct)<length(numOppProdsInAct)) {
+    stop("Error: data selected for 'tradeData' and 'GVCmapping' isn't compatible with each other. Select data within the same 'H' class, i.e., 'H0', 'H3', or 'H5'")
+  }
 
   GVCacts <- as.data.frame(matrix(rep(0, times = numActs*17), nrow = numActs, ncol = 17))   # initialise GVCacts
   colnames(GVCacts) <- c("tierNumber", "GVCactivityNumber", "AvgComplexity", "AvgDensity", "AvgRCA", "AvgComplexity_ifOpp", "AvgDistance_ifOpp", "AvgOpporGain_ifOpp", "AvgRCA_ifOpp", paste(CC, "export_of_activity", sep = "_"), "World_export_of_activity", paste(CC, "export_of_activity_ifOpp", sep = "_"), "World_export_of_activity_ifOpp", "NumberOfProductsInActivity", "NumberOfOppProductsInActivity", "AvgPGI", "AvgPGI_ifOpp")
@@ -264,5 +263,8 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   #use_data(Tier_Results, overwrite = T)
 #///////////////////////////////////////////////////////////////////////////////
   ReturnIOPS <- list(ECI, PCI, Opportunity_Gain, distance, density, M_absolute, M_binary, Tier_Results, Product_Category_Results, Product_Results)
-return(ReturnIOPS)
+  names(ReturnIOPS) <- c("ECI", "PCI", "Opportunity_Gain", "distance", "density", "M_absolute", "M_binary", "Tier_Results", "Product_Category_Results", "Product_Results")
+
+  return(ReturnIOPS)
+  message("Success!")
 }
