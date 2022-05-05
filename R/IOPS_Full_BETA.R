@@ -1,15 +1,15 @@
 
 #requireNamespace("roxygen2")
-requireNamespace("xlsx")
+requireNamespace("Rcpp")
 requireNamespace("dplyr")
 requireNamespace("tidyr")
 requireNamespace("readxl")
 requireNamespace("economiccomplexity")
 requireNamespace("usethis")
 
-library("xlsx")
-library("dplyr")
+library("Rcpp")
 library("tidyr")
+library("dplyr")
 library("readxl")
 library("economiccomplexity")
 library("usethis")
@@ -19,8 +19,8 @@ library("roxygen2")
 #'
 #' @description  Takes user inputted trade data, any acceptable ISO country code and industrial value chain mapping to calculate various metrics (Economic- and Product complexity metrics, distance metrics, opportunity gain, and inequality metrics) of a given country in order to facilitate better decision making regarding industrial policymaking.
 #'
-#' @import xlsx
 #' @import dplyr
+#' @import Rcpp
 #' @import tidyr
 #' @import readxl
 #' @import usethis
@@ -28,6 +28,7 @@ library("roxygen2")
 #' @import roxygen2
 #' @importFrom stats aggregate
 #' @importFrom utils write.csv
+#' @importFrom utils read.csv
 #'
 #' @param CountryCode (Type: character/integer) Any accepted ISO country code could be used, e.g. \code{"United Kingdom"}, \code{"GBR"}, \code{"GB"}, \code{828} would all be accepted if the United Kingdom is the desired country.
 #' @param tradeData (Type: csv) Accepts any CEPII BACI trade data. NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
@@ -37,11 +38,13 @@ library("roxygen2")
 #'
 #' @return A list that constains ECI, PCI, Opportunity_Gain, distance, density, M_absolute, M_binary, Tier_Results, Product_Category_Results, Product_Results, respectively.
 #' @export
-#'
-#' @examples
-#' IOPS(CountryCode = 711, tradeData=BACI_HS92_Y2018_V202001, GVCMapping = Auto_Value_Chain)
+
 
 IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCompl = 20, GVCMapping){
+
+  CountryDataPath <- system.file("extdata", "country_codes_V202001.csv", package = "iopspackage")
+
+  AllCountryCodes <- read.csv(CountryDataPath)
 
   #----------------------------- Import Trade Data -----------------------------
   countryChosen <- AllCountryCodes %>%

@@ -1,9 +1,9 @@
 Package: iopspackage
 Type: Package
-Title: IO-PS framework package
-Version: 0.1.0
+Title: IO-PS Framework Package
+Version: 0.1.1
 Author: Stellenbosch University Industrial Research Group
-Maintainer: The package maintainer <yourself@somewhere.net>
+Maintainer: R Theron <rolandingenieur98@gmail.com>
 Description: Takes user inputted trade data, any acceptable ISO country code and industrial 
     value chain mapping to calculate various metrics (Economic- and 
     Product complexity metrics, distance metrics, opportunity gain, and 
@@ -14,12 +14,12 @@ Imports:
     economiccomplexity,
     readxl,
     tidyr,
-    xlsx,
+    Rcpp,
     usethis,
     roxygen2
 License: GPL-3
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 RoxygenNote: 7.1.2
 Depends: 
     R (>= 2.10)
