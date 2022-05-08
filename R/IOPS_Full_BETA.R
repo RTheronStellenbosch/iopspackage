@@ -46,9 +46,15 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
 
   AllCountryCodes <- read.csv(CountryDataPath)
 
+
   #----------------------------- Import Trade Data -----------------------------
   countryChosen <- AllCountryCodes %>%
     filter(country_code == CountryCode | country_name_abbreviation == CountryCode | country_name_full == CountryCode | iso_2digit_alpha == CountryCode| iso_3digit_alpha == CountryCode)
+
+  #Error conditions
+  if( dim(countryChosen)[1] == 0) stop('Invalid country code')
+  if( ComplexMethod == "reflections"&& ComplexMethod == "eigenvalues" && ComplexMethod == "fitness") stop('Invalid country code')
+
 
   #Determine country's 3-digit country code
   CC <- as.numeric(countryChosen["country_code"])
@@ -268,6 +274,6 @@ IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCom
   ReturnIOPS <- list(ECI, PCI, Opportunity_Gain, distance, density, M_absolute, M_binary, Tier_Results, Product_Category_Results, Product_Results)
   names(ReturnIOPS) <- c("ECI", "PCI", "Opportunity_Gain", "distance", "density", "M_absolute", "M_binary", "Tier_Results", "Product_Category_Results", "Product_Results")
 
-  return(ReturnIOPS)
   message("Success!")
+  return(ReturnIOPS)
 }
