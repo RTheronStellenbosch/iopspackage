@@ -42,7 +42,7 @@ library("roxygen2")
 
 IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCompl = 20, GVCMapping){
 
-  CountryDataPath <- system.file("extdata", "country_codes_V202001.csv", package = "iopspackage")
+  CountryDataPath <- system.file("extdata", "country_codes_V202201.csv", package = "iopspackage")
 
   AllCountryCodes <- read.csv(CountryDataPath)
 
