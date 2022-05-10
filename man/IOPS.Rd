@@ -13,7 +13,7 @@ IOPS(
 )
 }
 \arguments{
-\item{CountryCode}{(Type: character/integer) Any accepted ISO country code could be used, e.g. \code{"United Kingdom"}, \code{"GBR"}, \code{"GB"}, \code{828} would all be accepted if the United Kingdom is the desired country.}
+\item{CountryCode}{(Type: character/integer) Any accepted ISO country code could be used, e.g. \code{"United Kingdom"}, \code{"GBR"}, \code{"GB"}, \code{828} would all be accepted if the United Kingdom is the desired country. This version of the package uses country_codes_V202201 from th BACI Hs17 2020 dataset, but can be changed in \code{inst/extdata}.}
 
 \item{tradeData}{(Type: csv) Accepts any CEPII BACI trade data. NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.}
 
@@ -28,4 +28,12 @@ A list that constains ECI, PCI, Opportunity_Gain, distance, density, M_absolute,
 }
 \description{
 Takes user inputted trade data, any acceptable ISO country code and industrial value chain mapping to calculate various metrics (Economic- and Product complexity metrics, distance metrics, opportunity gain, and inequality metrics) of a given country in order to facilitate better decision making regarding industrial policymaking.
+}
+\examples{
+IOPS(CountryCode = 710,
+tradeData = ExampleTradeData,
+ComplexMethod = "eigenvalues",
+iterCompl = 10,
+GVCMapping = ExampleValueChain)
+
 }

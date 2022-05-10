@@ -32,11 +32,18 @@ library("roxygen2")
 #' @importFrom utils write.csv
 #' @importFrom utils read.csv
 #'
-#' @param CountryCode (Type: character/integer) Any accepted ISO country code could be used, e.g. \code{"United Kingdom"}, \code{"GBR"}, \code{"GB"}, \code{828} would all be accepted if the United Kingdom is the desired country.
+#' @param CountryCode (Type: character/integer) Any accepted ISO country code could be used, e.g. \code{"United Kingdom"}, \code{"GBR"}, \code{"GB"}, \code{828} would all be accepted if the United Kingdom is the desired country. This version of the package uses country_codes_V202201 from th BACI Hs17 2020 dataset, but can be changed in \code{inst/extdata}.
 #' @param tradeData (Type: csv) Accepts any CEPII BACI trade data. NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
 #' @param ComplexMethod (Type: character) Methods used to calculate complexity measures. Can be any one of these methods: \code{"fitness"}, \code{"reflections"} or \code{"eigenvalues"}. Defaults to "eigenvalues".
 #' @param iterCompl (Type: integer) The number of iterations that the chosen complexity measure must use. Defaults to \code{iterCompl = 20}.
 #' @param GVCMapping (Type: csv) The desired value chain to be analysed. With Columns "Tiers", "Activity", and "HSCode". NOTE: tradeData and GVCMapping must be from the same "H" Family, e.g. both are from  H3, etc., in order for the program to work correctly.
+#'
+#' @examples
+#' IOPS(CountryCode = 710,
+#' tradeData = ExampleTradeData,
+#' ComplexMethod = "eigenvalues",
+#' iterCompl = 10,
+#' GVCMapping = ExampleValueChain)
 #'
 #' @return A list that constains ECI, PCI, Opportunity_Gain, distance, density, M_absolute, M_binary, Tier_Results, Product_Category_Results, Product_Results, respectively.
 #' @export
@@ -44,17 +51,34 @@ library("roxygen2")
 
 IOPS <- function(CountryCode ,tradeData , ComplexMethod = "eigenvalues", iterCompl = 20, GVCMapping){
 
+  #Assign empty variables
+  country_code <- NA
+  country_name_abbreviation <- NA
+  country_name_full <- NA
+  iso_2digit_alpha <- NA
+  iso_3digit_alpha <- NA
+  hs_product_code <- NA
+  export_value <-NA
+  GVCactivityNumber <- NA
+  tierNumber <- NA
+
   #tradeData2018 <- read.csv("H5/BACI_HS17_Y2018_V202001.csv", header = TRUE)
 
   CountryDataPath <- system.file("extdata", "country_codes_V202201.csv", package = "iopspackage")
 
   AllCountryCodes <- read.csv(CountryDataPath)
+  country_code <- AllCountryCodes$CountryCode
 
   countryChosen <- AllCountryCodes %>%
     filter(country_code == CountryCode | country_name_abbreviation == CountryCode | country_name_full == CountryCode | iso_2digit_alpha == CountryCode| iso_3digit_alpha == CountryCode)
 
   #Determine country's 3-digit country code
   chosenCountry <- as.character(countryChosen["iso_3digit_alpha"])
+
+  #Error conditions
+  if( dim(countryChosen)[1] == 0) stop('Invalid country code')
+  if( ComplexMethod == "reflections"&& ComplexMethod == "eigenvalues" && ComplexMethod == "fitness") stop('Invalid complexity method')
+
   #----------------------------- Import Trade Data -----------------------------
   #Determine country's 3-digit country code
 
